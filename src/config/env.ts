@@ -40,7 +40,7 @@ const schema = z.object({
   APP_URL: z.string().url(),
 });
 
-const parsed = schema.safeParse(process.env);
+const parsed = schema.safeParse(process.env!);
 if (!parsed.success) {
   console.error(
     "Invalid environment variables:",
