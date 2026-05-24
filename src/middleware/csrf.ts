@@ -20,8 +20,12 @@ function issueCsrfCookie(res: Response): string {
 }
 
 export function csrf(req: Request, res: Response, next: NextFunction): void {
-  const cookieToken = req.cookies?.[CSRF_COOKIE];
-  if (!cookieToken) issueCsrfCookie(res);
+  let cookieToken = req.cookies?.[CSRF_COOKIE];
+  if (!cookieToken) cookieToken = issueCsrfCookie(res);
+  // Expose to handlers (e.g. /auth/csrf) so they can echo it in JSON.
+  res.locals.csrfToken = cookieToken;
+  // Also expose via a response header readable cross-origin (must be allowed in CORS exposedHeaders).
+  res.setHeader("X-CSRF-Token", cookieToken);
 
   if (SAFE_METHODS.has(req.method)) return next();
 

@@ -34,6 +34,7 @@ export function createApp(): Express {
     cors({
       origin: env.CORS_ORIGIN.split(",").map((s) => s.trim()),
       credentials: true,
+      exposedHeaders: ["X-CSRF-Token"],
     }),
   );
   app.use(compression());

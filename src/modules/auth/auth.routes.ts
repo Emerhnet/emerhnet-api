@@ -19,6 +19,9 @@ const forgotLimiter = rateLimit({
 
 export const authRouter = Router();
 
+authRouter.get("/csrf", (_req, res) => {
+  res.json({ csrfToken: res.locals.csrfToken });
+});
 authRouter.post("/sign-in", signInLimiter, controller.postSignIn);
 authRouter.post("/refresh", controller.postRefresh);
 authRouter.post("/sign-out", controller.postSignOut);
