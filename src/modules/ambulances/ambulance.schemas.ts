@@ -1,9 +1,20 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 const phoneRegex = /^[+\d][\d\s-]{7,20}$/;
 
-const AMB_TYPES = ['BLS', 'ALS', 'ICU', 'Neonatal', 'Patient Transport'] as const;
-const AMB_STATUSES = ['Available', 'On Duty', 'Under Maintenance', 'Out of Service'] as const;
+const AMB_TYPES = [
+  "BLS",
+  "ALS",
+  "ICU",
+  "Neonatal",
+  "Patient Transport",
+] as const;
+const AMB_STATUSES = [
+  "Available",
+  "On Duty",
+  "Under Maintenance",
+  "Out of Service",
+] as const;
 
 export const createAmbulanceSchema = z.object({
   vehicleNumber: z.string().min(1).max(30),
@@ -11,7 +22,7 @@ export const createAmbulanceSchema = z.object({
   driverName: z.string().min(2),
   driverPhone: z.string().regex(phoneRegex),
   equipment: z.array(z.string().min(1)).default([]),
-  status: z.enum(AMB_STATUSES).default('Available'),
+  status: z.enum(AMB_STATUSES).default("Available"),
 });
 export type CreateAmbulanceInput = z.infer<typeof createAmbulanceSchema>;
 

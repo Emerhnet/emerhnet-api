@@ -1,7 +1,7 @@
-import { Router } from 'express';
-import rateLimit from 'express-rate-limit';
-import * as controller from './auth.controller';
-import { requireAuth } from '../../middleware/auth';
+import { Router } from "express";
+import rateLimit from "express-rate-limit";
+import * as controller from "./auth.controller";
+import { requireAuth } from "../../middleware/auth";
 
 const signInLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -19,9 +19,13 @@ const forgotLimiter = rateLimit({
 
 export const authRouter = Router();
 
-authRouter.post('/sign-in', signInLimiter, controller.postSignIn);
-authRouter.post('/refresh', controller.postRefresh);
-authRouter.post('/sign-out', controller.postSignOut);
-authRouter.get('/me', requireAuth, controller.getMe);
-authRouter.post('/forgot-password', forgotLimiter, controller.postForgotPassword);
-authRouter.post('/reset-password', controller.postResetPassword);
+authRouter.post("/sign-in", signInLimiter, controller.postSignIn);
+authRouter.post("/refresh", controller.postRefresh);
+authRouter.post("/sign-out", controller.postSignOut);
+authRouter.get("/me", requireAuth, controller.getMe);
+authRouter.post(
+  "/forgot-password",
+  forgotLimiter,
+  controller.postForgotPassword,
+);
+authRouter.post("/reset-password", controller.postResetPassword);

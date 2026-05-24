@@ -20,14 +20,14 @@ OpenAPI spec: `GET http://localhost:4000/api/v1/openapi.json`
 
 ## Scripts
 
-| Script | What |
-|---|---|
-| `npm run dev` | nodemon + tsx, watches `src/` |
-| `npm run build` | compile to `dist/` |
-| `npm start` | run compiled build |
-| `npm run typecheck` | tsc no-emit |
-| `npm run lint` | eslint |
-| `npm test` | vitest |
+| Script              | What                          |
+| ------------------- | ----------------------------- |
+| `npm run dev`       | nodemon + tsx, watches `src/` |
+| `npm run build`     | compile to `dist/`            |
+| `npm start`         | run compiled build            |
+| `npm run typecheck` | tsc no-emit                   |
+| `npm run lint`      | eslint                        |
+| `npm test`          | vitest                        |
 
 ## Layout
 

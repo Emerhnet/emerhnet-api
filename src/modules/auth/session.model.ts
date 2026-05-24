@@ -1,4 +1,4 @@
-import { Schema, model, Types, type HydratedDocument } from 'mongoose';
+import { Schema, model, Types, type HydratedDocument } from "mongoose";
 
 export interface SessionAttrs {
   userId: Types.ObjectId;
@@ -13,7 +13,12 @@ export interface SessionAttrs {
 
 const sessionSchema = new Schema<SessionAttrs>(
   {
-    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+      index: true,
+    },
     tokenId: { type: String, required: true, unique: true, index: true },
     userAgent: String,
     ip: String,
@@ -26,4 +31,4 @@ const sessionSchema = new Schema<SessionAttrs>(
 sessionSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
 export type SessionDoc = HydratedDocument<SessionAttrs>;
-export const Session = model<SessionAttrs>('Session', sessionSchema);
+export const Session = model<SessionAttrs>("Session", sessionSchema);

@@ -1,7 +1,7 @@
-import { Schema, model, Types, type HydratedDocument } from 'mongoose';
+import { Schema, model, Types, type HydratedDocument } from "mongoose";
 
-export type UserRole = 'superAdmin' | 'hospitalAdmin';
-export type UserStatus = 'active' | 'locked' | 'pendingPasswordSet';
+export type UserRole = "superAdmin" | "hospitalAdmin";
+export type UserStatus = "active" | "locked" | "pendingPasswordSet";
 
 export interface UserAttrs {
   email: string;
@@ -21,15 +21,32 @@ export interface UserAttrs {
 
 const userSchema = new Schema<UserAttrs>(
   {
-    email: { type: String, required: true, unique: true, lowercase: true, trim: true, index: true },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      trim: true,
+      index: true,
+    },
     passwordHash: { type: String, required: true, select: false },
     fullName: { type: String, required: true, trim: true },
-    role: { type: String, enum: ['superAdmin', 'hospitalAdmin'], required: true, index: true },
-    hospitalId: { type: Schema.Types.ObjectId, ref: 'Hospital', default: null, index: true },
+    role: {
+      type: String,
+      enum: ["superAdmin", "hospitalAdmin"],
+      required: true,
+      index: true,
+    },
+    hospitalId: {
+      type: Schema.Types.ObjectId,
+      ref: "Hospital",
+      default: null,
+      index: true,
+    },
     status: {
       type: String,
-      enum: ['active', 'locked', 'pendingPasswordSet'],
-      default: 'active',
+      enum: ["active", "locked", "pendingPasswordSet"],
+      default: "active",
       index: true,
     },
     mustChangePassword: { type: Boolean, default: false },
@@ -56,4 +73,4 @@ const userSchema = new Schema<UserAttrs>(
 userSchema.index({ hospitalId: 1, role: 1 });
 
 export type UserDoc = HydratedDocument<UserAttrs>;
-export const User = model<UserAttrs>('User', userSchema);
+export const User = model<UserAttrs>("User", userSchema);

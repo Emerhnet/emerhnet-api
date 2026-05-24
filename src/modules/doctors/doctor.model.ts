@@ -1,6 +1,6 @@
-import { Schema, model, Types, type HydratedDocument } from 'mongoose';
+import { Schema, model, Types, type HydratedDocument } from "mongoose";
 
-export type Gender = 'Male' | 'Female' | 'Other' | 'Prefer not to say';
+export type Gender = "Male" | "Female" | "Other" | "Prefer not to say";
 
 export interface DoctorAttrs {
   hospitalId: Types.ObjectId;
@@ -22,18 +22,28 @@ export interface DoctorAttrs {
 
 const doctorSchema = new Schema<DoctorAttrs>(
   {
-    hospitalId: { type: Schema.Types.ObjectId, ref: 'Hospital', required: true, index: true },
+    hospitalId: {
+      type: Schema.Types.ObjectId,
+      ref: "Hospital",
+      required: true,
+      index: true,
+    },
     fullName: { type: String, required: true, trim: true },
     councilReg: { type: String, required: true, trim: true },
     council: { type: String, required: true, trim: true },
-    departmentId: { type: Schema.Types.ObjectId, ref: 'Department', required: true, index: true },
-    specialisation: { type: String, default: '', trim: true },
+    departmentId: {
+      type: Schema.Types.ObjectId,
+      ref: "Department",
+      required: true,
+      index: true,
+    },
+    specialisation: { type: String, default: "", trim: true },
     qualifications: { type: [String], default: [] },
     email: { type: String, required: true, lowercase: true, trim: true },
     phone: { type: String, required: true, trim: true },
     gender: {
       type: String,
-      enum: ['Male', 'Female', 'Other', 'Prefer not to say'],
+      enum: ["Male", "Female", "Other", "Prefer not to say"],
       required: true,
     },
     dob: { type: Date, default: null },
@@ -58,4 +68,4 @@ doctorSchema.index({ hospitalId: 1, councilReg: 1 }, { unique: true });
 doctorSchema.index({ hospitalId: 1, fullName: 1 });
 
 export type DoctorDoc = HydratedDocument<DoctorAttrs>;
-export const Doctor = model<DoctorAttrs>('Doctor', doctorSchema);
+export const Doctor = model<DoctorAttrs>("Doctor", doctorSchema);

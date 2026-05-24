@@ -1,8 +1,8 @@
-import { Types } from 'mongoose';
-import { AuditLog } from '../../shared/audit';
-import { User } from '../auth/user.model';
-import { Hospital } from '../hospitals/hospital.model';
-import type { ListAuditInput } from './audit-log.schemas';
+import { Types } from "mongoose";
+import { AuditLog } from "../../shared/audit";
+import { User } from "../auth/user.model";
+import { Hospital } from "../hospitals/hospital.model";
+import type { ListAuditInput } from "./audit-log.schemas";
 
 function hid(s: string) {
   return new Types.ObjectId(s);
@@ -41,10 +41,14 @@ export async function listAuditLog(opts: ListAuditOptions) {
 
   if (opts.actorUserId) filter.actorUserId = hid(opts.actorUserId);
   if (opts.entityType) filter.entityType = opts.entityType;
-  if (opts.ip) filter.ip = new RegExp(opts.ip.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+  if (opts.ip)
+    filter.ip = new RegExp(opts.ip.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
 
   const actionList = opts.actions
-    ? opts.actions.split(',').map((s) => s.trim()).filter(Boolean)
+    ? opts.actions
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean)
     : opts.action
       ? [opts.action]
       : [];
@@ -53,14 +57,17 @@ export async function listAuditLog(opts: ListAuditOptions) {
   }
 
   if (opts.search) {
-    const re = new RegExp(opts.search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+    const re = new RegExp(
+      opts.search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
+      "i",
+    );
     filter.$or = [{ action: re }, { entityType: re }, { entityId: re }];
   }
 
   if (opts.from || opts.to) {
     const dateFilter: Record<string, Date> = {};
     if (opts.from) dateFilter.$gte = new Date(opts.from);
-    if (opts.to) dateFilter.$lte = new Date(opts.to + 'T23:59:59Z');
+    if (opts.to) dateFilter.$lte = new Date(opts.to + "T23:59:59Z");
     filter.createdAt = dateFilter;
   }
 
@@ -74,23 +81,37 @@ export async function listAuditLog(opts: ListAuditOptions) {
   ]);
 
   const userIds = Array.from(
-    new Set(docs.map((d) => d.actorUserId && String(d.actorUserId)).filter(Boolean) as string[]),
+    new Set(
+      docs
+        .map((d) => d.actorUserId && String(d.actorUserId))
+        .filter(Boolean) as string[],
+    ),
   );
   const hospitalIds = Array.from(
-    new Set(docs.map((d) => d.hospitalId && String(d.hospitalId)).filter(Boolean) as string[]),
+    new Set(
+      docs
+        .map((d) => d.hospitalId && String(d.hospitalId))
+        .filter(Boolean) as string[],
+    ),
   );
 
   const [users, hospitals] = await Promise.all([
     userIds.length
-      ? User.find({ _id: { $in: userIds } }).select('fullName email').lean()
+      ? User.find({ _id: { $in: userIds } })
+          .select("fullName email")
+          .lean()
       : Promise.resolve([]),
     hospitalIds.length
-      ? Hospital.find({ _id: { $in: hospitalIds } }).select('hospitalName').lean()
+      ? Hospital.find({ _id: { $in: hospitalIds } })
+          .select("hospitalName")
+          .lean()
       : Promise.resolve([]),
   ]);
 
   const userMap = new Map(users.map((u) => [String(u._id), u]));
-  const hospitalMap = new Map(hospitals.map((h) => [String(h._id), h.hospitalName]));
+  const hospitalMap = new Map(
+    hospitals.map((h) => [String(h._id), h.hospitalName]),
+  );
 
   const items: AuditLogResponseRow[] = docs.map((d) => {
     const actorUserId = d.actorUserId ? String(d.actorUserId) : null;
@@ -100,11 +121,13 @@ export async function listAuditLog(opts: ListAuditOptions) {
       id: String(d._id),
       action: d.action,
       actorUserId,
-      actorRole: d.actorRole ?? 'anonymous',
-      actorName: user?.fullName ?? (d.actorRole === 'anonymous' ? 'Anonymous' : 'System'),
-      actorEmail: user?.email ?? '',
+      actorRole: d.actorRole ?? "anonymous",
+      actorName:
+        user?.fullName ??
+        (d.actorRole === "anonymous" ? "Anonymous" : "System"),
+      actorEmail: user?.email ?? "",
       hospitalId,
-      hospitalName: hospitalId ? hospitalMap.get(hospitalId) ?? null : null,
+      hospitalName: hospitalId ? (hospitalMap.get(hospitalId) ?? null) : null,
       entityType: d.entityType ?? null,
       entityId: d.entityId ?? null,
       before: d.before ?? null,

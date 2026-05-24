@@ -1,20 +1,24 @@
-import { Types } from 'mongoose';
-import { Doctor } from './doctor.model';
-import { Department } from '../departments/department.model';
-import type { CreateDoctorInput, UpdateDoctorInput } from './doctor.schemas';
-import { Conflict, NotFound, ValidationError } from '../../shared/errors';
-import { writeAudit } from '../../shared/audit';
+import { Types } from "mongoose";
+import { Doctor } from "./doctor.model";
+import { Department } from "../departments/department.model";
+import type { CreateDoctorInput, UpdateDoctorInput } from "./doctor.schemas";
+import { Conflict, NotFound, ValidationError } from "../../shared/errors";
+import { writeAudit } from "../../shared/audit";
 
 function hid(s: string) {
   return new Types.ObjectId(s);
 }
 
-async function assertDepartmentInHospital(hospitalId: string, departmentId: string) {
+async function assertDepartmentInHospital(
+  hospitalId: string,
+  departmentId: string,
+) {
   const dept = await Department.findOne({
     _id: hid(departmentId),
     hospitalId: hid(hospitalId),
   }).lean();
-  if (!dept) throw ValidationError('Department does not belong to this hospital');
+  if (!dept)
+    throw ValidationError("Department does not belong to this hospital");
 }
 
 export async function listDoctors(
@@ -22,17 +26,20 @@ export async function listDoctors(
   opts: {
     search?: string;
     departmentId?: string;
-    status?: 'active' | 'deactivated';
+    status?: "active" | "deactivated";
     page: number;
     pageSize: number;
   },
 ) {
   const filter: Record<string, unknown> = { hospitalId: hid(hospitalId) };
   if (opts.departmentId) filter.departmentId = hid(opts.departmentId);
-  if (opts.status === 'active') filter.deactivatedAt = null;
-  if (opts.status === 'deactivated') filter.deactivatedAt = { $ne: null };
+  if (opts.status === "active") filter.deactivatedAt = null;
+  if (opts.status === "deactivated") filter.deactivatedAt = { $ne: null };
   if (opts.search) {
-    const re = new RegExp(opts.search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+    const re = new RegExp(
+      opts.search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
+      "i",
+    );
     filter.$or = [{ fullName: re }, { councilReg: re }, { email: re }];
   }
 
@@ -54,18 +61,26 @@ export async function listDoctors(
 }
 
 export async function getDoctor(hospitalId: string, id: string) {
-  const d = await Doctor.findOne({ _id: hid(id), hospitalId: hid(hospitalId) }).exec();
-  if (!d) throw NotFound('Doctor not found');
+  const d = await Doctor.findOne({
+    _id: hid(id),
+    hospitalId: hid(hospitalId),
+  }).exec();
+  if (!d) throw NotFound("Doctor not found");
   return d.toJSON();
 }
 
-export async function createDoctor(hospitalId: string, input: CreateDoctorInput, actorUserId: string) {
+export async function createDoctor(
+  hospitalId: string,
+  input: CreateDoctorInput,
+  actorUserId: string,
+) {
   await assertDepartmentInHospital(hospitalId, input.departmentId);
   const clash = await Doctor.findOne({
     hospitalId: hid(hospitalId),
     councilReg: input.councilReg,
   }).lean();
-  if (clash) throw Conflict('A doctor with this council registration already exists');
+  if (clash)
+    throw Conflict("A doctor with this council registration already exists");
 
   const d = await Doctor.create({
     hospitalId: hid(hospitalId),
@@ -73,7 +88,7 @@ export async function createDoctor(hospitalId: string, input: CreateDoctorInput,
     councilReg: input.councilReg,
     council: input.council,
     departmentId: hid(input.departmentId),
-    specialisation: input.specialisation ?? '',
+    specialisation: input.specialisation ?? "",
     qualifications: input.qualifications ?? [],
     email: input.email,
     phone: input.phone,
@@ -84,10 +99,10 @@ export async function createDoctor(hospitalId: string, input: CreateDoctorInput,
 
   await writeAudit({
     actorUserId,
-    actorRole: 'hospitalAdmin',
+    actorRole: "hospitalAdmin",
     hospitalId,
-    action: 'doctor.created',
-    entityType: 'Doctor',
+    action: "doctor.created",
+    entityType: "Doctor",
     entityId: d.id,
   });
 
@@ -101,7 +116,7 @@ export async function updateDoctor(
   actorUserId: string,
 ) {
   const d = await Doctor.findOne({ _id: hid(id), hospitalId: hid(hospitalId) });
-  if (!d) throw NotFound('Doctor not found');
+  if (!d) throw NotFound("Doctor not found");
 
   if (input.departmentId && input.departmentId !== String(d.departmentId)) {
     await assertDepartmentInHospital(hospitalId, input.departmentId);
@@ -113,13 +128,16 @@ export async function updateDoctor(
       councilReg: input.councilReg,
       _id: { $ne: d._id },
     }).lean();
-    if (clash) throw Conflict('A doctor with this council registration already exists');
+    if (clash)
+      throw Conflict("A doctor with this council registration already exists");
     d.councilReg = input.councilReg;
   }
   if (input.fullName !== undefined) d.fullName = input.fullName;
   if (input.council !== undefined) d.council = input.council;
-  if (input.specialisation !== undefined) d.specialisation = input.specialisation;
-  if (input.qualifications !== undefined) d.qualifications = input.qualifications;
+  if (input.specialisation !== undefined)
+    d.specialisation = input.specialisation;
+  if (input.qualifications !== undefined)
+    d.qualifications = input.qualifications;
   if (input.email !== undefined) d.email = input.email;
   if (input.phone !== undefined) d.phone = input.phone;
   if (input.gender !== undefined) d.gender = input.gender;
@@ -129,48 +147,56 @@ export async function updateDoctor(
 
   await writeAudit({
     actorUserId,
-    actorRole: 'hospitalAdmin',
+    actorRole: "hospitalAdmin",
     hospitalId,
-    action: 'doctor.updated',
-    entityType: 'Doctor',
+    action: "doctor.updated",
+    entityType: "Doctor",
     entityId: d.id,
   });
 
   return d.toJSON();
 }
 
-export async function deactivateDoctor(hospitalId: string, id: string, actorUserId: string) {
+export async function deactivateDoctor(
+  hospitalId: string,
+  id: string,
+  actorUserId: string,
+) {
   const d = await Doctor.findOne({ _id: hid(id), hospitalId: hid(hospitalId) });
-  if (!d) throw NotFound('Doctor not found');
+  if (!d) throw NotFound("Doctor not found");
   if (d.deactivatedAt) return d.toJSON();
   d.deactivatedAt = new Date();
   await d.save();
 
   await writeAudit({
     actorUserId,
-    actorRole: 'hospitalAdmin',
+    actorRole: "hospitalAdmin",
     hospitalId,
-    action: 'doctor.deactivated',
-    entityType: 'Doctor',
+    action: "doctor.deactivated",
+    entityType: "Doctor",
     entityId: d.id,
   });
 
   return d.toJSON();
 }
 
-export async function reactivateDoctor(hospitalId: string, id: string, actorUserId: string) {
+export async function reactivateDoctor(
+  hospitalId: string,
+  id: string,
+  actorUserId: string,
+) {
   const d = await Doctor.findOne({ _id: hid(id), hospitalId: hid(hospitalId) });
-  if (!d) throw NotFound('Doctor not found');
+  if (!d) throw NotFound("Doctor not found");
   if (!d.deactivatedAt) return d.toJSON();
   d.deactivatedAt = null;
   await d.save();
 
   await writeAudit({
     actorUserId,
-    actorRole: 'hospitalAdmin',
+    actorRole: "hospitalAdmin",
     hospitalId,
-    action: 'doctor.reactivated',
-    entityType: 'Doctor',
+    action: "doctor.reactivated",
+    entityType: "Doctor",
     entityId: d.id,
   });
 

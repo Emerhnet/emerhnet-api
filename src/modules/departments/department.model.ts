@@ -1,4 +1,4 @@
-import { Schema, model, Types, type HydratedDocument } from 'mongoose';
+import { Schema, model, Types, type HydratedDocument } from "mongoose";
 
 export interface DepartmentAttrs {
   hospitalId: Types.ObjectId;
@@ -11,9 +11,14 @@ export interface DepartmentAttrs {
 
 const departmentSchema = new Schema<DepartmentAttrs>(
   {
-    hospitalId: { type: Schema.Types.ObjectId, ref: 'Hospital', required: true, index: true },
+    hospitalId: {
+      type: Schema.Types.ObjectId,
+      ref: "Hospital",
+      required: true,
+      index: true,
+    },
     name: { type: String, required: true, trim: true },
-    headDoctorId: { type: Schema.Types.ObjectId, ref: 'Doctor', default: null },
+    headDoctorId: { type: Schema.Types.ObjectId, ref: "Doctor", default: null },
     active: { type: Boolean, default: true, index: true },
   },
   {
@@ -33,4 +38,7 @@ const departmentSchema = new Schema<DepartmentAttrs>(
 departmentSchema.index({ hospitalId: 1, name: 1 }, { unique: true });
 
 export type DepartmentDoc = HydratedDocument<DepartmentAttrs>;
-export const Department = model<DepartmentAttrs>('Department', departmentSchema);
+export const Department = model<DepartmentAttrs>(
+  "Department",
+  departmentSchema,
+);

@@ -1,8 +1,8 @@
-import type { NextFunction, Request, Response } from 'express';
-import { verifyAccessToken } from '../shared/tokens';
-import { Unauthorized, Forbidden } from '../shared/errors';
+import type { NextFunction, Request, Response } from "express";
+import { verifyAccessToken } from "../shared/tokens";
+import { Unauthorized, Forbidden } from "../shared/errors";
 
-export type Role = 'superAdmin' | 'hospitalAdmin';
+export type Role = "superAdmin" | "hospitalAdmin";
 
 export interface AuthUser {
   userId: string;
@@ -19,10 +19,14 @@ declare global {
   }
 }
 
-export const ACCESS_COOKIE = 'emn_at';
-export const REFRESH_COOKIE = 'emn_rt';
+export const ACCESS_COOKIE = "emn_at";
+export const REFRESH_COOKIE = "emn_rt";
 
-export function requireAuth(req: Request, _res: Response, next: NextFunction): void {
+export function requireAuth(
+  req: Request,
+  _res: Response,
+  next: NextFunction,
+): void {
   const token = req.cookies?.[ACCESS_COOKIE];
   if (!token) return next(Unauthorized());
   try {
@@ -34,7 +38,7 @@ export function requireAuth(req: Request, _res: Response, next: NextFunction): v
     };
     next();
   } catch {
-    next(Unauthorized('Invalid or expired session'));
+    next(Unauthorized("Invalid or expired session"));
   }
 }
 

@@ -1,6 +1,6 @@
-import { z } from 'zod';
+import { z } from "zod";
 
-const objectId = z.string().regex(/^[a-f0-9]{24}$/i, 'Invalid id');
+const objectId = z.string().regex(/^[a-f0-9]{24}$/i, "Invalid id");
 
 export const createDepartmentSchema = z.object({
   name: z.string().min(1).max(120),

@@ -1,12 +1,12 @@
-import { Schema, model, Types, type HydratedDocument } from 'mongoose';
+import { Schema, model, Types, type HydratedDocument } from "mongoose";
 
 export type InvitationStatus =
-  | 'sent'
-  | 'opened'
-  | 'submitted'
-  | 'approved'
-  | 'expired'
-  | 'cancelled';
+  | "sent"
+  | "opened"
+  | "submitted"
+  | "approved"
+  | "expired"
+  | "cancelled";
 
 export interface InvitationAttrs {
   recipientEmail: string;
@@ -29,25 +29,41 @@ export interface InvitationAttrs {
 
 const invitationSchema = new Schema<InvitationAttrs>(
   {
-    recipientEmail: { type: String, required: true, lowercase: true, trim: true, index: true },
+    recipientEmail: {
+      type: String,
+      required: true,
+      lowercase: true,
+      trim: true,
+      index: true,
+    },
     hospitalName: { type: String, required: true, trim: true },
-    recipientRole: { type: String, default: '', trim: true },
-    internalNotes: { type: String, default: '' },
-    verificationNotes: { type: String, default: '' },
+    recipientRole: { type: String, default: "", trim: true },
+    internalNotes: { type: String, default: "" },
+    verificationNotes: { type: String, default: "" },
     tokenHash: { type: String, required: true, unique: true, index: true },
     status: {
       type: String,
-      enum: ['sent', 'opened', 'submitted', 'approved', 'expired', 'cancelled'],
-      default: 'sent',
+      enum: ["sent", "opened", "submitted", "approved", "expired", "cancelled"],
+      default: "sent",
       index: true,
     },
     expiresAt: { type: Date, required: true },
-    sentByUserId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+    sentByUserId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+      index: true,
+    },
     openedAt: { type: Date, default: null },
     submittedAt: { type: Date, default: null },
     approvedAt: { type: Date, default: null },
     cancelledAt: { type: Date, default: null },
-    hospitalId: { type: Schema.Types.ObjectId, ref: 'Hospital', default: null, index: true },
+    hospitalId: {
+      type: Schema.Types.ObjectId,
+      ref: "Hospital",
+      default: null,
+      index: true,
+    },
   },
   {
     timestamps: true,
@@ -67,4 +83,7 @@ const invitationSchema = new Schema<InvitationAttrs>(
 invitationSchema.index({ createdAt: -1 });
 
 export type InvitationDoc = HydratedDocument<InvitationAttrs>;
-export const Invitation = model<InvitationAttrs>('Invitation', invitationSchema);
+export const Invitation = model<InvitationAttrs>(
+  "Invitation",
+  invitationSchema,
+);

@@ -1,17 +1,17 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 export const createInvitationSchema = z.object({
   hospitalName: z.string().min(2),
   recipientEmail: z.string().email().toLowerCase(),
-  recipientRole: z.string().optional().default(''),
-  internalNotes: z.string().optional().default(''),
-  verificationNotes: z.string().min(1, 'Verification notes are required'),
+  recipientRole: z.string().optional().default(""),
+  internalNotes: z.string().optional().default(""),
+  verificationNotes: z.string().min(1, "Verification notes are required"),
 });
 export type CreateInvitationInput = z.infer<typeof createInvitationSchema>;
 
 export const listInvitationsSchema = z.object({
   status: z
-    .enum(['sent', 'opened', 'submitted', 'approved', 'expired', 'cancelled'])
+    .enum(["sent", "opened", "submitted", "approved", "expired", "cancelled"])
     .optional(),
   search: z.string().optional(),
   from: z.string().optional(),

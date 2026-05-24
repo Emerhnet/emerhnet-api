@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 export const createBedSchema = z.object({
   type: z.string().min(1).max(60),

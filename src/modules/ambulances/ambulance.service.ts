@@ -1,11 +1,11 @@
-import { Types } from 'mongoose';
-import { Ambulance } from './ambulance.model';
+import { Types } from "mongoose";
+import { Ambulance } from "./ambulance.model";
 import type {
   CreateAmbulanceInput,
   UpdateAmbulanceInput,
-} from './ambulance.schemas';
-import { Conflict, NotFound } from '../../shared/errors';
-import { writeAudit } from '../../shared/audit';
+} from "./ambulance.schemas";
+import { Conflict, NotFound } from "../../shared/errors";
+import { writeAudit } from "../../shared/audit";
 
 function hid(s: string) {
   return new Types.ObjectId(s);
@@ -19,7 +19,10 @@ export async function listAmbulances(
   if (opts.type) filter.type = opts.type;
   if (opts.status) filter.status = opts.status;
   if (opts.search) {
-    const re = new RegExp(opts.search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+    const re = new RegExp(
+      opts.search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
+      "i",
+    );
     filter.$or = [{ vehicleNumber: re }, { driverName: re }];
   }
 
@@ -36,7 +39,8 @@ export async function createAmbulance(
     hospitalId: hid(hospitalId),
     vehicleNumber: input.vehicleNumber,
   }).lean();
-  if (clash) throw Conflict('An ambulance with this vehicle number already exists');
+  if (clash)
+    throw Conflict("An ambulance with this vehicle number already exists");
 
   const a = await Ambulance.create({
     hospitalId: hid(hospitalId),
@@ -45,15 +49,15 @@ export async function createAmbulance(
     driverName: input.driverName,
     driverPhone: input.driverPhone,
     equipment: input.equipment ?? [],
-    status: input.status ?? 'Available',
+    status: input.status ?? "Available",
   });
 
   await writeAudit({
     actorUserId,
-    actorRole: 'hospitalAdmin',
+    actorRole: "hospitalAdmin",
     hospitalId,
-    action: 'ambulance.created',
-    entityType: 'Ambulance',
+    action: "ambulance.created",
+    entityType: "Ambulance",
     entityId: a.id,
     after: { vehicleNumber: a.vehicleNumber, type: a.type },
   });
@@ -67,16 +71,23 @@ export async function updateAmbulance(
   input: UpdateAmbulanceInput,
   actorUserId: string,
 ) {
-  const a = await Ambulance.findOne({ _id: hid(id), hospitalId: hid(hospitalId) });
-  if (!a) throw NotFound('Ambulance not found');
+  const a = await Ambulance.findOne({
+    _id: hid(id),
+    hospitalId: hid(hospitalId),
+  });
+  if (!a) throw NotFound("Ambulance not found");
 
-  if (input.vehicleNumber !== undefined && input.vehicleNumber !== a.vehicleNumber) {
+  if (
+    input.vehicleNumber !== undefined &&
+    input.vehicleNumber !== a.vehicleNumber
+  ) {
     const clash = await Ambulance.findOne({
       hospitalId: hid(hospitalId),
       vehicleNumber: input.vehicleNumber,
       _id: { $ne: a._id },
     }).lean();
-    if (clash) throw Conflict('An ambulance with this vehicle number already exists');
+    if (clash)
+      throw Conflict("An ambulance with this vehicle number already exists");
     a.vehicleNumber = input.vehicleNumber;
   }
   if (input.type !== undefined) a.type = input.type;
@@ -88,27 +99,34 @@ export async function updateAmbulance(
 
   await writeAudit({
     actorUserId,
-    actorRole: 'hospitalAdmin',
+    actorRole: "hospitalAdmin",
     hospitalId,
-    action: 'ambulance.updated',
-    entityType: 'Ambulance',
+    action: "ambulance.updated",
+    entityType: "Ambulance",
     entityId: a.id,
   });
 
   return a.toJSON();
 }
 
-export async function deleteAmbulance(hospitalId: string, id: string, actorUserId: string) {
-  const a = await Ambulance.findOne({ _id: hid(id), hospitalId: hid(hospitalId) });
-  if (!a) throw NotFound('Ambulance not found');
+export async function deleteAmbulance(
+  hospitalId: string,
+  id: string,
+  actorUserId: string,
+) {
+  const a = await Ambulance.findOne({
+    _id: hid(id),
+    hospitalId: hid(hospitalId),
+  });
+  if (!a) throw NotFound("Ambulance not found");
   await a.deleteOne();
 
   await writeAudit({
     actorUserId,
-    actorRole: 'hospitalAdmin',
+    actorRole: "hospitalAdmin",
     hospitalId,
-    action: 'ambulance.deleted',
-    entityType: 'Ambulance',
+    action: "ambulance.deleted",
+    entityType: "Ambulance",
     entityId: id,
   });
 }

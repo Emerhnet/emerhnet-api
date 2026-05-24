@@ -1,11 +1,13 @@
-import mongoose from 'mongoose';
-import { env } from './env';
-import { logger } from '../shared/logger';
+import mongoose from "mongoose";
+import { env } from "./env";
+import { logger } from "../shared/logger";
 
 export async function connectDb(): Promise<void> {
-  mongoose.set('strictQuery', true);
-  await mongoose.connect(env.MONGO_URI, { autoIndex: env.NODE_ENV !== 'production' });
-  logger.info({ uri: redact(env.MONGO_URI) }, 'mongo connected');
+  mongoose.set("strictQuery", true);
+  await mongoose.connect(env.MONGO_URI, {
+    autoIndex: env.NODE_ENV !== "production",
+  });
+  logger.info({ uri: redact(env.MONGO_URI) }, "mongo connected");
 }
 
 export async function disconnectDb(): Promise<void> {
@@ -13,5 +15,5 @@ export async function disconnectDb(): Promise<void> {
 }
 
 function redact(uri: string): string {
-  return uri.replace(/\/\/([^:]+):([^@]+)@/, '//$1:***@');
+  return uri.replace(/\/\/([^:]+):([^@]+)@/, "//$1:***@");
 }

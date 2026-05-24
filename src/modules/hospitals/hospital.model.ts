@@ -1,14 +1,14 @@
-import { Schema, model, type HydratedDocument } from 'mongoose';
+import { Schema, model, type HydratedDocument } from "mongoose";
 
-export type HospitalStatus = 'pending' | 'approved' | 'rejected' | 'suspended';
-export type HospitalCategory = 'Government' | 'Private' | 'Trust';
+export type HospitalStatus = "pending" | "approved" | "rejected" | "suspended";
+export type HospitalCategory = "Government" | "Private" | "Trust";
 export type DocumentSlotKey =
-  | 'hospitalRegistrationCertificate'
-  | 'ceaLicence'
-  | 'authorisationLetter'
-  | 'governmentOrder'
-  | 'nabhAccreditation'
-  | 'panOfEntity';
+  | "hospitalRegistrationCertificate"
+  | "ceaLicence"
+  | "authorisationLetter"
+  | "governmentOrder"
+  | "nabhAccreditation"
+  | "panOfEntity";
 
 export interface HospitalAttrs {
   trackingId: string;
@@ -29,8 +29,18 @@ export interface HospitalAttrs {
   };
   contact: { email: string; phone: string };
   adminContact: { name: string; email: string; phone: string };
-  documents: Array<{ slotKey: DocumentSlotKey; fileName: string; sizeBytes: number; s3Key: string }>;
-  photos: Array<{ s3Key: string; fileName: string; sizeBytes: number; uploadedAt: Date }>;
+  documents: Array<{
+    slotKey: DocumentSlotKey;
+    fileName: string;
+    sizeBytes: number;
+    s3Key: string;
+  }>;
+  photos: Array<{
+    s3Key: string;
+    fileName: string;
+    sizeBytes: number;
+    uploadedAt: Date;
+  }>;
   visitingHours: string;
   description: string;
   status: HospitalStatus;
@@ -47,13 +57,17 @@ const hospitalSchema = new Schema<HospitalAttrs>(
     trackingId: { type: String, required: true, unique: true, index: true },
     hospitalName: { type: String, required: true, trim: true },
     nin: { type: String, required: true, unique: true, index: true },
-    ceaLicenceNumber: { type: String, default: '' },
-    category: { type: String, enum: ['Government', 'Private', 'Trust'], required: true },
+    ceaLicenceNumber: { type: String, default: "" },
+    category: {
+      type: String,
+      enum: ["Government", "Private", "Trust"],
+      required: true,
+    },
     cghsEmpanelment: { type: Boolean, required: true },
     ayushmanEmpanelment: { type: Boolean, required: true },
     address: {
       line1: { type: String, required: true },
-      line2: { type: String, default: '' },
+      line2: { type: String, default: "" },
       city: { type: String, required: true },
       state: { type: String, required: true },
       pincode: { type: String, required: true },
@@ -88,15 +102,15 @@ const hospitalSchema = new Schema<HospitalAttrs>(
       ],
       default: [],
     },
-    visitingHours: { type: String, default: '' },
-    description: { type: String, default: '' },
+    visitingHours: { type: String, default: "" },
+    description: { type: String, default: "" },
     status: {
       type: String,
-      enum: ['pending', 'approved', 'rejected', 'suspended'],
-      default: 'pending',
+      enum: ["pending", "approved", "rejected", "suspended"],
+      default: "pending",
       index: true,
     },
-    reviewNotes: { type: String, default: '' },
+    reviewNotes: { type: String, default: "" },
     approvedAt: { type: Date, default: null },
     rejectedAt: { type: Date, default: null },
     suspendedAt: { type: Date, default: null },
@@ -116,7 +130,7 @@ const hospitalSchema = new Schema<HospitalAttrs>(
 );
 
 hospitalSchema.index({ status: 1, createdAt: -1 });
-hospitalSchema.index({ 'adminContact.email': 1 });
+hospitalSchema.index({ "adminContact.email": 1 });
 
 export type HospitalDoc = HydratedDocument<HospitalAttrs>;
-export const Hospital = model<HospitalAttrs>('Hospital', hospitalSchema);
+export const Hospital = model<HospitalAttrs>("Hospital", hospitalSchema);

@@ -1,7 +1,16 @@
-import { Schema, model, Types, type HydratedDocument } from 'mongoose';
+import { Schema, model, Types, type HydratedDocument } from "mongoose";
 
-export type AmbulanceType = 'BLS' | 'ALS' | 'ICU' | 'Neonatal' | 'Patient Transport';
-export type AmbulanceStatus = 'Available' | 'On Duty' | 'Under Maintenance' | 'Out of Service';
+export type AmbulanceType =
+  | "BLS"
+  | "ALS"
+  | "ICU"
+  | "Neonatal"
+  | "Patient Transport";
+export type AmbulanceStatus =
+  | "Available"
+  | "On Duty"
+  | "Under Maintenance"
+  | "Out of Service";
 
 export interface AmbulanceAttrs {
   hospitalId: Types.ObjectId;
@@ -17,11 +26,16 @@ export interface AmbulanceAttrs {
 
 const ambulanceSchema = new Schema<AmbulanceAttrs>(
   {
-    hospitalId: { type: Schema.Types.ObjectId, ref: 'Hospital', required: true, index: true },
+    hospitalId: {
+      type: Schema.Types.ObjectId,
+      ref: "Hospital",
+      required: true,
+      index: true,
+    },
     vehicleNumber: { type: String, required: true, trim: true },
     type: {
       type: String,
-      enum: ['BLS', 'ALS', 'ICU', 'Neonatal', 'Patient Transport'],
+      enum: ["BLS", "ALS", "ICU", "Neonatal", "Patient Transport"],
       required: true,
     },
     driverName: { type: String, required: true, trim: true },
@@ -29,8 +43,8 @@ const ambulanceSchema = new Schema<AmbulanceAttrs>(
     equipment: { type: [String], default: [] },
     status: {
       type: String,
-      enum: ['Available', 'On Duty', 'Under Maintenance', 'Out of Service'],
-      default: 'Available',
+      enum: ["Available", "On Duty", "Under Maintenance", "Out of Service"],
+      default: "Available",
       index: true,
     },
   },
@@ -51,4 +65,4 @@ const ambulanceSchema = new Schema<AmbulanceAttrs>(
 ambulanceSchema.index({ hospitalId: 1, vehicleNumber: 1 }, { unique: true });
 
 export type AmbulanceDoc = HydratedDocument<AmbulanceAttrs>;
-export const Ambulance = model<AmbulanceAttrs>('Ambulance', ambulanceSchema);
+export const Ambulance = model<AmbulanceAttrs>("Ambulance", ambulanceSchema);

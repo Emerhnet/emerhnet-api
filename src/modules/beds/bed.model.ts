@@ -1,4 +1,4 @@
-import { Schema, model, Types, type HydratedDocument } from 'mongoose';
+import { Schema, model, Types, type HydratedDocument } from "mongoose";
 
 export interface BedAttrs {
   hospitalId: Types.ObjectId;
@@ -12,11 +12,20 @@ export interface BedAttrs {
 
 const bedSchema = new Schema<BedAttrs>(
   {
-    hospitalId: { type: Schema.Types.ObjectId, ref: 'Hospital', required: true, index: true },
+    hospitalId: {
+      type: Schema.Types.ObjectId,
+      ref: "Hospital",
+      required: true,
+      index: true,
+    },
     type: { type: String, required: true, trim: true },
     total: { type: Number, required: true, min: 0 },
     occupied: { type: Number, required: true, min: 0, default: 0 },
-    lastUpdatedByUserId: { type: Schema.Types.ObjectId, ref: 'User', default: null },
+    lastUpdatedByUserId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
   },
   {
     timestamps: true,
@@ -35,4 +44,4 @@ const bedSchema = new Schema<BedAttrs>(
 bedSchema.index({ hospitalId: 1, type: 1 }, { unique: true });
 
 export type BedDoc = HydratedDocument<BedAttrs>;
-export const Bed = model<BedAttrs>('Bed', bedSchema);
+export const Bed = model<BedAttrs>("Bed", bedSchema);
