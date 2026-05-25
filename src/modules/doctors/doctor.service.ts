@@ -1,9 +1,14 @@
 import { Types } from "mongoose";
-import { Doctor } from "./doctor.model";
+import { Doctor, type DoctorDoc } from "./doctor.model";
 import { Department } from "../departments/department.model";
-import type { CreateDoctorInput, UpdateDoctorInput } from "./doctor.schemas";
+import type {
+  CreateDoctorInput,
+  UpdateDoctorInput,
+  SetDutyStatusInput,
+} from "./doctor.schemas";
 import { Conflict, NotFound, ValidationError } from "../../shared/errors";
 import { writeAudit } from "../../shared/audit";
+import { getPresignedUrl } from "../upload/upload.service";
 
 function hid(s: string) {
   return new Types.ObjectId(s);
@@ -19,6 +24,23 @@ async function assertDepartmentInHospital(
   }).lean();
   if (!dept)
     throw ValidationError("Department does not belong to this hospital");
+}
+
+async function toJsonWithPhotoUrl(d: DoctorDoc) {
+  const out = d.toJSON() as Record<string, unknown> & {
+    photoS3Key: string | null;
+    photoUrl?: string | null;
+  };
+  if (d.photoS3Key) {
+    try {
+      out.photoUrl = await getPresignedUrl(d.photoS3Key, 3600);
+    } catch {
+      out.photoUrl = null;
+    }
+  } else {
+    out.photoUrl = null;
+  }
+  return out;
 }
 
 export async function listDoctors(
@@ -52,8 +74,9 @@ export async function listDoctors(
     Doctor.countDocuments(filter),
   ]);
 
+  const items = await Promise.all(docs.map((d) => toJsonWithPhotoUrl(d)));
   return {
-    items: docs.map((d) => d.toJSON()),
+    items,
     total,
     page: opts.page,
     pageSize: opts.pageSize,
@@ -66,7 +89,7 @@ export async function getDoctor(hospitalId: string, id: string) {
     hospitalId: hid(hospitalId),
   }).exec();
   if (!d) throw NotFound("Doctor not found");
-  return d.toJSON();
+  return toJsonWithPhotoUrl(d);
 }
 
 export async function createDoctor(
@@ -95,6 +118,10 @@ export async function createDoctor(
     gender: input.gender,
     dob: input.dob ? new Date(input.dob) : null,
     joinedAt: new Date(input.joinedAt),
+    opdRoom: input.opdRoom ?? "",
+    photoS3Key: input.photoS3Key ?? null,
+    dutyStatus: input.dutyStatus ?? "active",
+    consultationSchedule: input.consultationSchedule ?? null,
   });
 
   await writeAudit({
@@ -106,7 +133,7 @@ export async function createDoctor(
     entityId: d.id,
   });
 
-  return d.toJSON();
+  return toJsonWithPhotoUrl(d);
 }
 
 export async function updateDoctor(
@@ -143,6 +170,11 @@ export async function updateDoctor(
   if (input.gender !== undefined) d.gender = input.gender;
   if (input.dob !== undefined) d.dob = input.dob ? new Date(input.dob) : null;
   if (input.joinedAt !== undefined) d.joinedAt = new Date(input.joinedAt);
+  if (input.opdRoom !== undefined) d.opdRoom = input.opdRoom;
+  if (input.photoS3Key !== undefined) d.photoS3Key = input.photoS3Key;
+  if (input.dutyStatus !== undefined) d.dutyStatus = input.dutyStatus;
+  if (input.consultationSchedule !== undefined)
+    d.consultationSchedule = input.consultationSchedule;
   await d.save();
 
   await writeAudit({
@@ -154,7 +186,31 @@ export async function updateDoctor(
     entityId: d.id,
   });
 
-  return d.toJSON();
+  return toJsonWithPhotoUrl(d);
+}
+
+export async function setDutyStatus(
+  hospitalId: string,
+  id: string,
+  input: SetDutyStatusInput,
+  actorUserId: string,
+) {
+  const d = await Doctor.findOne({ _id: hid(id), hospitalId: hid(hospitalId) });
+  if (!d) throw NotFound("Doctor not found");
+  d.dutyStatus = input.dutyStatus;
+  await d.save();
+
+  await writeAudit({
+    actorUserId,
+    actorRole: "hospitalAdmin",
+    hospitalId,
+    action: "doctor.duty_status_changed",
+    entityType: "Doctor",
+    entityId: d.id,
+    after: { dutyStatus: input.dutyStatus },
+  });
+
+  return toJsonWithPhotoUrl(d);
 }
 
 export async function deactivateDoctor(
@@ -164,7 +220,7 @@ export async function deactivateDoctor(
 ) {
   const d = await Doctor.findOne({ _id: hid(id), hospitalId: hid(hospitalId) });
   if (!d) throw NotFound("Doctor not found");
-  if (d.deactivatedAt) return d.toJSON();
+  if (d.deactivatedAt) return toJsonWithPhotoUrl(d);
   d.deactivatedAt = new Date();
   await d.save();
 
@@ -177,7 +233,7 @@ export async function deactivateDoctor(
     entityId: d.id,
   });
 
-  return d.toJSON();
+  return toJsonWithPhotoUrl(d);
 }
 
 export async function reactivateDoctor(
@@ -187,7 +243,7 @@ export async function reactivateDoctor(
 ) {
   const d = await Doctor.findOne({ _id: hid(id), hospitalId: hid(hospitalId) });
   if (!d) throw NotFound("Doctor not found");
-  if (!d.deactivatedAt) return d.toJSON();
+  if (!d.deactivatedAt) return toJsonWithPhotoUrl(d);
   d.deactivatedAt = null;
   await d.save();
 
@@ -200,5 +256,5 @@ export async function reactivateDoctor(
     entityId: d.id,
   });
 
-  return d.toJSON();
+  return toJsonWithPhotoUrl(d);
 }

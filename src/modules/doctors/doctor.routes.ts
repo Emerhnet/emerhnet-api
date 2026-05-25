@@ -11,3 +11,4 @@ doctorsRouter.get("/:id", controller.getOne);
 doctorsRouter.patch("/:id", controller.patchOne);
 doctorsRouter.post("/:id/deactivate", controller.postDeactivate);
 doctorsRouter.post("/:id/reactivate", controller.postReactivate);
+doctorsRouter.post("/:id/duty-status", controller.postSetDutyStatus);

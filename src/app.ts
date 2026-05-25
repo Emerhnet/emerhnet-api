@@ -21,6 +21,7 @@ import { bedsRouter } from "./modules/beds/bed.routes";
 import { ambulancesRouter } from "./modules/ambulances/ambulance.routes";
 import { auditLogRouter } from "./modules/audit-log/audit-log.routes";
 import { exportsRouter } from "./modules/exports/exports.routes";
+import { dashboardRouter } from "./modules/dashboard/dashboard.routes";
 import { openapiRouter } from "./openapi/openapi.routes";
 
 export function createApp(): Express {
@@ -85,6 +86,7 @@ export function createApp(): Express {
   api.use("/ambulances", ambulancesRouter);
   api.use("/audit-log", auditLogRouter);
   api.use("/exports", exportsRouter);
+  api.use("/dashboard", dashboardRouter);
 
   app.use(env.API_PREFIX, api);
 

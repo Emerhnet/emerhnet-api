@@ -3,6 +3,7 @@ import {
   createDoctorSchema,
   updateDoctorSchema,
   listDoctorsSchema,
+  setDutyStatusSchema,
 } from "./doctor.schemas";
 import * as service from "./doctor.service";
 import { Forbidden } from "../../shared/errors";
@@ -70,6 +71,22 @@ export async function postDeactivate(
     const { hospitalId, userId } = ctx(req);
     res.json(
       await service.deactivateDoctor(hospitalId, req.params.id!, userId),
+    );
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function postSetDutyStatus(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const { hospitalId, userId } = ctx(req);
+    const input = setDutyStatusSchema.parse(req.body);
+    res.json(
+      await service.setDutyStatus(hospitalId, req.params.id!, input, userId),
     );
   } catch (err) {
     next(err);

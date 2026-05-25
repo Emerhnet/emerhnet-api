@@ -7,6 +7,10 @@ import {
   addPhotoSchema,
 } from "./hospital.schemas";
 import * as service from "./hospital.service";
+import * as doctorService from "../doctors/doctor.service";
+import * as departmentService from "../departments/department.service";
+import * as bedService from "../beds/bed.service";
+import * as ambulanceService from "../ambulances/ambulance.service";
 import { Forbidden, ValidationError } from "../../shared/errors";
 
 export async function postRegister(
@@ -197,6 +201,59 @@ export async function getDocumentUrl(
     const { id, slotKey } = req.params as { id: string; slotKey: string };
     const url = await service.getHospitalDocumentUrl(id, slotKey);
     res.json({ url });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function getDoctorsForHospital(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const result = await doctorService.listDoctors(req.params.id!, {
+      page: 1,
+      pageSize: 200,
+    });
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function getDepartmentsForHospital(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const items = await departmentService.listDepartments(req.params.id!, {});
+    res.json({ items });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function getBedsForHospital(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    res.json(await bedService.listBeds(req.params.id!));
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function getAmbulancesForHospital(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    res.json(await ambulanceService.listAmbulances(req.params.id!, {}));
   } catch (err) {
     next(err);
   }
