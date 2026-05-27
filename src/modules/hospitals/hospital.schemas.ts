@@ -65,8 +65,14 @@ export const registerHospitalSchema = z.object({
     city: z.string().min(1),
     state: z.enum(INDIAN_STATES),
     pincode: z.string().regex(/^\d{6}$/),
-    latitude: z.string().regex(latRegex, "Invalid latitude"),
-    longitude: z.string().regex(lngRegex, "Invalid longitude"),
+    latitude: z
+      .string()
+      .optional()
+      .refine((v) => !v || latRegex.test(v), "Invalid latitude"),
+    longitude: z
+      .string()
+      .optional()
+      .refine((v) => !v || lngRegex.test(v), "Invalid longitude"),
   }),
   contact: z.object({
     email: z.string().email().toLowerCase(),

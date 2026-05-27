@@ -68,8 +68,8 @@ export async function registerHospital(input: RegisterHospitalInput) {
       city: input.address.city,
       state: input.address.state,
       pincode: input.address.pincode,
-      latitude: parseFloat(input.address.latitude),
-      longitude: parseFloat(input.address.longitude),
+      latitude: input.address.latitude ? parseFloat(input.address.latitude) : null,
+      longitude: input.address.longitude ? parseFloat(input.address.longitude) : null,
     },
     contact: input.contact,
     adminContact: {

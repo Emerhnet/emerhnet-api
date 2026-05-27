@@ -24,8 +24,8 @@ export interface HospitalAttrs {
     city: string;
     state: string;
     pincode: string;
-    latitude: number;
-    longitude: number;
+    latitude: number | null;
+    longitude: number | null;
   };
   contact: { email: string; phone: string };
   adminContact: { name: string; email: string; phone: string };
@@ -71,8 +71,8 @@ const hospitalSchema = new Schema<HospitalAttrs>(
       city: { type: String, required: true },
       state: { type: String, required: true },
       pincode: { type: String, required: true },
-      latitude: { type: Number, required: true },
-      longitude: { type: Number, required: true },
+      latitude: { type: Number, default: null },
+      longitude: { type: Number, default: null },
     },
     contact: {
       email: { type: String, required: true, lowercase: true, trim: true },

@@ -26,6 +26,7 @@ superAdmin.get("/:id/doctors", controller.getDoctorsForHospital);
 superAdmin.get("/:id/departments", controller.getDepartmentsForHospital);
 superAdmin.get("/:id/beds", controller.getBedsForHospital);
 superAdmin.get("/:id/ambulances", controller.getAmbulancesForHospital);
+superAdmin.get("/:id/bloodbank", controller.getBloodBankForHospital);
 superAdmin.get("/:id/documents/:slotKey/url", controller.getDocumentUrl);
 superAdmin.patch("/:id/approve", controller.patchApprove);
 superAdmin.patch("/:id/reject", controller.patchReject);

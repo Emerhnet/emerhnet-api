@@ -11,6 +11,7 @@ import * as doctorService from "../doctors/doctor.service";
 import * as departmentService from "../departments/department.service";
 import * as bedService from "../beds/bed.service";
 import * as ambulanceService from "../ambulances/ambulance.service";
+import * as bloodBankService from "../bloodbank/bloodbank.service";
 import { Forbidden, ValidationError } from "../../shared/errors";
 
 export async function postRegister(
@@ -254,6 +255,18 @@ export async function getAmbulancesForHospital(
 ) {
   try {
     res.json(await ambulanceService.listAmbulances(req.params.id!, {}));
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function getBloodBankForHospital(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    res.json(await bloodBankService.listBloodStock(req.params.id!));
   } catch (err) {
     next(err);
   }

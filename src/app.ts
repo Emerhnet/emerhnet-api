@@ -19,6 +19,7 @@ import { departmentsRouter } from "./modules/departments/department.routes";
 import { doctorsRouter } from "./modules/doctors/doctor.routes";
 import { bedsRouter } from "./modules/beds/bed.routes";
 import { ambulancesRouter } from "./modules/ambulances/ambulance.routes";
+import { bloodbankRouter } from "./modules/bloodbank/bloodbank.routes";
 import { auditLogRouter } from "./modules/audit-log/audit-log.routes";
 import { exportsRouter } from "./modules/exports/exports.routes";
 import { dashboardRouter } from "./modules/dashboard/dashboard.routes";
@@ -84,6 +85,7 @@ export function createApp(): Express {
   api.use("/doctors", doctorsRouter);
   api.use("/beds", bedsRouter);
   api.use("/ambulances", ambulancesRouter);
+  api.use("/bloodbank", bloodbankRouter);
   api.use("/audit-log", auditLogRouter);
   api.use("/exports", exportsRouter);
   api.use("/dashboard", dashboardRouter);
